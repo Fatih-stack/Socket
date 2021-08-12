@@ -12,11 +12,10 @@ namespace aricanli {
 			fd_set frServer, fwServer, feServer;
 			TIMEVAL tv;
 			int nRetServer;
+			int nSockServer;
 			int nArrClient[5];
 
 		public:
-			int nMaxFdServer;
-			int nSockServer;
 			Server();
 			Server(const Server&) = delete;
 			Server& operator= (const Server&) = delete;

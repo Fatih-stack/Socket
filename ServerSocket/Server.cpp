@@ -6,7 +6,6 @@ Server::Server()
 {
     srvServer = new SOCKADDR_IN;
     nRetServer = 0;
-    nMaxFdServer = 0;
     nSockServer = 0;
     FD_ZERO(&frServer);
     FD_ZERO(&fwServer);
@@ -217,7 +216,7 @@ void Server::arrangeFD()
 //check new request on port if there set file descriptor and send response to client
 void Server::contProcessNewRequest()
 {
-    nRetServer = select(nMaxFdServer, &frServer, &fwServer, &feServer, &tv);
+    nRetServer = select(nSockServer + 1, &frServer, &fwServer, &feServer, &tv);
     if (nRetServer > 0) {
         std::cout << "Data on port----Processing now-----" << std::endl;
         for (int index = 0; index < 5; index++)

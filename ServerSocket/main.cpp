@@ -14,7 +14,6 @@ int main()
     if (!res) return EXIT_FAILURE;
     server.bindSock();
     server.listenReq(5);
-    server.nMaxFdServer = server.nSockServer + 1;
     while (1)
     {
         server.arrangeFD();
