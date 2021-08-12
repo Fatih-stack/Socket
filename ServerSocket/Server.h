@@ -8,13 +8,15 @@ namespace aricanli {
 		class Server
 		{
 		private:
-			SOCKADDR_IN *srvServer;
+			SOCKADDR_IN* srvServer;
 			fd_set frServer, fwServer, feServer;
 			TIMEVAL tv;
-			int nRetServer, nMaxFdServer, nSockServer;
+			int nRetServer;
 			int nArrClient[5];
-			
+
 		public:
+			int nMaxFdServer;
+			int nSockServer;
 			Server();
 			Server(const Server&) = delete;
 			Server& operator= (const Server&) = delete;
@@ -27,7 +29,6 @@ namespace aricanli {
 			bool SetBlocking(bool isBlocking);
 			void bindSock();
 			void listenReq(int MaxClient);
-			void initVarsFD();
 			void arrangeFD();
 			void contProcessNewRequest();
 		};

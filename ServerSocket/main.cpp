@@ -5,7 +5,7 @@
 using namespace aricanli::network;
 
 int main()
-{ 
+{
     Server server;
     server.initializeSocket();
     server.initEnv(80, "127.0.0.1");
@@ -14,8 +14,8 @@ int main()
     if (!res) return EXIT_FAILURE;
     server.bindSock();
     server.listenReq(5);
-    server.initVarsFD();
-    while(1)
+    server.nMaxFdServer = server.nSockServer + 1;
+    while (1)
     {
         server.arrangeFD();
         server.contProcessNewRequest();

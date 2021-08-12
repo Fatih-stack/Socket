@@ -5,14 +5,24 @@ using namespace aricanli::network;
 Server::Server()
 {
     srvServer = new SOCKADDR_IN;
+    nRetServer = 0;
+    nMaxFdServer = 0;
+    nSockServer = 0;
+    FD_ZERO(&frServer);
+    FD_ZERO(&fwServer);
+    FD_ZERO(&feServer);
+    for (int i = 0; i < 5; i++)
+        nArrClient[i] = 0;
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
 }
 
 //close all sockets and delete pointer
 Server::~Server()
 {
     closesocket(nSockServer);   //close server
-    
-    for (int index = 0; index < 5; index++) 
+
+    for (int index = 0; index < 5; index++)
     {
         if (nArrClient[index] != 0) //if client is open 
         {
@@ -29,32 +39,28 @@ void Server::ProcessNewMessage(int nClient, std::string msg, bool sendMsg)
     std::cout << "Processing new message from client : " << nClient << std::endl;
     char buff[257] = { 0 };
     int nRet = 0;
-    if(!sendMsg)
+    if (!sendMsg) {
         nRet = recv(nClient, buff, 256, 0);
-    if (nRet < 0 && sendMsg)
-    {
-        std::cout << "Failed!!! Closing the connection for the client" << std::endl;
-        closesocket(nClient);
-        for (int index = 0; index < 5; index++)
+        std::cout << "The message come from client is : " << buff;
+        std::cout << "******************************" << std::endl;
+    }
+    else {
+        if (nRet < 0 && sendMsg)
         {
-            if (nArrClient[index] == nClient)
+            std::cout << "Failed!!! Closing the connection for the client" << std::endl;
+            closesocket(nClient);
+            for (int index = 0; index < 5; index++)
             {
-                nArrClient[index] = 0;
-                exit(EXIT_FAILURE);
-                break;
+                if (nArrClient[index] == nClient)
+                {
+                    nArrClient[index] = 0;
+                    exit(EXIT_FAILURE);
+                }
             }
         }
-    }
-    else
-    {
-        if(!sendMsg)
+        else
         {
-            std::cout << "The message come from client is : " << buff;
-            std::cout << "******************************" << std::endl;
-        }
-        //send the response to client
-        else 
-        {
+            //send the response to client
             send(nClient, msg.c_str(), 50, 0);
         }
     }
@@ -102,7 +108,7 @@ void Server::ProcessTheNewRequest(std::string buff)
 }
 
 //initialize WSA and open Socket if error occurs clean wsa and exit 
-void Server::initializeSocket() 
+void Server::initializeSocket()
 {
     WSAData wSockData;
     WORD dllVersion = MAKEWORD(2, 2);
@@ -126,7 +132,7 @@ void Server::initializeSocket()
 }
 
 //init environment for socket(ip address, port, family)
-void Server::initEnv(int port, const char *ip)
+void Server::initEnv(int port, const char* ip)
 {
     srvServer->sin_family = AF_INET;
     srvServer->sin_port = htons(port);
@@ -189,13 +195,6 @@ void Server::listenReq(int MaxClient)
     else std::cout << "Started to listen local port " << nRetServer << std::endl;
 }
 
-void Server::initVarsFD()
-{
-    nMaxFdServer = nSockServer + 1;
-    tv.tv_sec = 1;
-    tv.tv_usec = 0;
-}
-
 //clear file descriptor variables and set read and exception variables for open sockets
 void Server::arrangeFD()
 {
@@ -242,7 +241,7 @@ void Server::contProcessNewRequest()
         }
         if (FD_ISSET(nSockServer, &frServer))
         {
-            std::cout << "Ready to read something. Something new come to the port" << std::endl;
+            std::cout << "Ready to read something" << std::endl;
         }
     }
     else if (nRetServer == 0) {
